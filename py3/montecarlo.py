@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from random import random
 import sys
 iterations = int(sys.argv[1])

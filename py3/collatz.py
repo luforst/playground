@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 def collatz(x):
     if x <= 0:
         raise ValueError("Collatz has become 0")
