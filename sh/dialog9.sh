@@ -1,3 +1,4 @@
+#!/bin/bash
 # Demonstriert dialog --gauge
 # Name : dialog9
 DIALOG=dialog
