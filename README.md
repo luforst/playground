@@ -6,11 +6,11 @@ The files are sorted into subfolders by their respective programming language.
 ## Python 3
 - caesarcode.py: simple implementation of the Caesar cipher
 - collatz.py: check a number for compliance with the Collatz conjecture
-- helloworld_boxes_pack.py: I tried a hello-world example of Gtk using the gi module
+- helloworld\_boxes\_pack.py: I tried a hello-world example of Gtk using the gi module
 - josephus.py: a script to solve the Josephus problem, I don't know if it's actually working...
-- simple_example.py: Hello-world of Gtk (gi module) with a button changing its label
+- simple\_example.py: Hello-world of Gtk (gi module) with a button changing its label
 - stalinsort.py: implementation of the Stalin sorting algorithm: any dissident element rejecting the Party's official order of elements is eliminated
-- størmer_numbers.py: well it prints Størmer numbers
+- størmer\_numbers.py: well it prints Størmer numbers
 - wxpython-beispiel.py: a German hello-world of wxpython
 
 ## Shellscript
