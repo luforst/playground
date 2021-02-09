@@ -23,3 +23,6 @@ These scripts use the dialog command to show a progress bar
 - documents-backup.sh: compresses the files of Documents folder and shows a progress bar of compression.
   Maybe I'm going to use it in an automatic backup script in the future.
 - dvdcopy-gaugedemo.sh: actually it doesn't copy DVDs but pretends to, showing a sample progress bar
+
+## Haskell
+- caesarcode.hs: to-be implementation of Caesar cipher / especially ROT13
