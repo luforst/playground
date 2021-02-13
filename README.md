@@ -24,5 +24,10 @@ These scripts use the dialog command to show a progress bar
   Maybe I'm going to use it in an automatic backup script in the future.
 - dvdcopy-gaugedemo.sh: actually it doesn't copy DVDs but pretends to, showing a sample progress bar
 
+## Fortran
+- hello.f90: Hello world
+- cylinder.f90: self-educational program calculating stuff about a cylinder when given height and base radius
+- efunktion-taylor.f90: supposed to calculate e^x using a Taylor series; does't work yet
+
 ## Haskell
 - caesarcode.hs: to-be implementation of Caesar cipher / especially ROT13
