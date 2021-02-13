@@ -2,8 +2,8 @@ function fak(k) result(fakultaet)
     implicit none
     integer, intent(in) :: k
     integer :: fakultaet
-    fakultaet = 1
     integer :: m
+    fakultaet = 1
     do m=1,k
         fakultaet = fakultaet*m
     end do
@@ -13,14 +13,14 @@ program efunktion
     implicit none
     real :: x
     real :: taylorsum
-    taylorsum = 0
     integer :: n    ! number of iterations
+    integer :: i    ! iteration variable
+    taylorsum = 0
     n = 10
 
     print *, 'Enter x: '
     read(*,*) x
 
-    integer :: i    ! iteration variable
     do i=1,n
         taylorsum = taylorsum + (x**i) / fak(i)
     end do
