@@ -34,3 +34,6 @@ These scripts use the dialog command to show a progress bar
 
 ## Haskell
 - caesarcode.hs: to-be implementation of Caesar cipher / especially ROT13
+
+## NodeJS JavaScript
+- helloworld.js: hello world example from nodejs.org, sets up a most basic http server greeting on port 3000
