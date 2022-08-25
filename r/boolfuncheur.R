@@ -33,18 +33,10 @@ evalNode <- function(node, binvec) {
       return(binvec[node$index])
     }
   } else if (node$type == "operator") {
-    if (node$operator == "&") {
-      if (node$negated) {
-        return(! Reduce(and, evalNode(node$operands, binvec)))
-      } else {
-        return(Reduce(and, evalNode(node$operands, binvec)))
-      }
-    } else if (node$operator == "|") {
-      if (node$negated) {
-        return(! Reduce(or, evalNode(node$operands, binvec)))
-      } else {
-        return(Reduce(or, evalNode(node$operands, binvec)))
-      }
+    if (node$negated) {
+      return(! Reduce(node$operator, mapply(evalNode, node$operands, MoreArgs = list(binvec = binvec))))
+    } else {
+      return(Reduce(node$operator, mapply(evalNode, node$operands, MoreArgs = list(binvec = binvec))))
     }
   }
 }
