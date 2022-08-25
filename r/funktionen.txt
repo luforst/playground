@@ -1,0 +1,18 @@
+targets, factors
+A,A
+B,B
+C,C
+D,D
+E,E
+F1, A&B&C&D
+F2, A&B&C | D
+F3, A&B | C&D
+F4, (A&B) | (A&C&D)
+F5, A & !B & !C & (D|E)
+F6, A&B&C&D&E
+F7, A|B|C|D|E
+F8, (A|B|C)&(D|E)
+F9, !(A|B) & C & (D|E) & !(D&E)
+F10, (A|B|C)&D&E
+F11, A
+F12, A&B
