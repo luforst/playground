@@ -68,3 +68,28 @@ boolfuncheur.main <- function() {
     print(evalRobustness(tree[[paste("F",toString(i),sep="")]], numSamples=1000))
   }
 }
+
+
+# functionGeneration function for generateRandomKNNetwork
+generateBalancedBinvec <- function(input, balance=0.5) {
+  n <- 2**length(input)
+  a <- rep(0, n)
+  a[sample(1:n, floor(n*balance))] <- 1
+  return(a)
+}
+
+
+generateRNet <- function() {
+  rnet <- generateRandomNKNetwork(10, 5, topology = "fixed", functionGeneration = generateBalancedBinvec)
+  saveNetwork(simplifyNetwork(rnet), "rnet.txt", generateDNFs = FALSE)
+  rnet <<- loadNetwork("rnet.txt", symbolic = TRUE) #global assignment operator <<-
+}
+
+boolfuncnetheur.main <- function() {
+  if (! exists("rnet")) {
+    generateRNet()
+  }
+  for (i in 1:10) {
+    print(evalRobustness(rnet$interactions[[paste("Gene",toString(i),sep="")]], vecLength=10, numSamples=5000))
+  }
+}
