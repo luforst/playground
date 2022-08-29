@@ -17,14 +17,6 @@ randFlip <- function(x) {
   return(x)
 }
 
-and <- function(x,y) {
-  return(x&y)
-}
-
-or <- function(x,y) {
-  return(x|y)
-}
-
 evalNode <- function(node, binvec) {
   if (node$type == "atom") {
     if (node$negated) {
