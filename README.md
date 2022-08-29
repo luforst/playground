@@ -26,6 +26,12 @@ These scripts use the dialog command to show a progress bar
 
 ## R
 - myFirstRScript.R: draws a histogram of Gaussian-distributed random numbers
+- boolfuncheur.R: heuristic examination of Boolean functions' noise sensitivity, using the BoolNet package. Berufspraktikum project.
+  - funktionen.txt: its BoolNet rules file
+  - TruthTable.txt: examine Boolean functions' truth tables and balancedness
+
+## Lisp
+- guess-my-number.lisp: guess-my-number, the first example program from Land of Lisp
 
 ## Fortran
 - hello.f90: Hello world
