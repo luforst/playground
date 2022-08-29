@@ -9,11 +9,7 @@ perturbieren <- function() {
 
 randFlip <- function(x) {
   i <- sample(1:length(x),1)
-  if (x[i]) {
-    x[i] <- FALSE
-  } else {
-    x[i] <- TRUE
-  }
+  x[i] <- !x[i]
   return(x)
 }
 
@@ -35,12 +31,29 @@ evalNode <- function(node, binvec) {
 
 tree <- net$interactions
 
-evalRobustness <- function(func, numSamples=100) {
+# evalRobustness <- function(func, boolfn, numSamples=100) {
+#   changed <- notchanged <- 0
+#   for (i in 1:numSamples) {
+#     randvec <- sample(0:1, 5, replace=TRUE)
+#     output <- func(boolfn, randvec)
+#     output.flip <- func(boolfn, randFlip(randvec))
+#     if (output == output.flip) {
+#       notchanged <- notchanged +1
+#     } else {
+#       changed <- changed +1
+#     }
+#   }
+#   return(c(changed, notchanged))
+# }
+
+# example usage: evalRobustness(evalNode, tree$F1)
+
+evalRobustness <- function(boolfn, vecLength=5, numSamples=100) {
   changed <- notchanged <- 0
   for (i in 1:numSamples) {
-    randvec <- sample(0:1, 5, replace=TRUE)
-    output <- func(randvec)
-    output.flip <- func(randFlip(randvec))
+    randvec <- sample(0:1, vecLength, replace=TRUE)
+    output <- evalNode(boolfn, randvec)
+    output.flip <- evalNode(boolfn, randFlip(randvec))
     if (output == output.flip) {
       notchanged <- notchanged +1
     } else {
@@ -50,6 +63,8 @@ evalRobustness <- function(func, numSamples=100) {
   return(c(changed, notchanged))
 }
 
-spam <- function(x){
-  return(x[1]&x[2]&x[3]&x[4]&x[5])
+boolfuncheur.main <- function() {
+  for (i in 1:10) {
+    print(evalRobustness(tree[[paste("F",toString(i),sep="")]], numSamples=1000))
+  }
 }
