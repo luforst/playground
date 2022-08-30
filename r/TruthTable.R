@@ -27,11 +27,22 @@ balances.main <- function() {
   }
 }
 
-gray4_truth_table <- function(x) {
+getGray4_TruthTable <- function(x) {
   vars <- unique(unlist(strsplit(x, "[[:space:]]?[[:punct:]][[:space:]]?")))
   vars <- vars[vars != ""]
   perm <- data.frame(matrix(as.integer(unlist(strsplit("0000000100110010011001110101010011001101111111101010101110011000", ""))), 16,4, byrow=TRUE))
   names(perm) <- vars
   perm[ , x] <- with(perm, eval(parse(text = x)))
   return(perm)
+}
+
+evalGray4_TruthTable <- function(x) {
+  vec <- getGray4_TruthTable(x)[,x]
+  count <- 0
+  for (i in 2:length(vec)) {
+    if (vec[i] != vec[i-1]) {
+      count <- count +1
+    }
+  }
+  return(count)
 }
