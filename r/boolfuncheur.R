@@ -80,8 +80,8 @@ generateBalancedBinvec <- function(input, balance=0.5) {
 }
 
 
-generateRNet <- function(filename="rnet.txt", nVar=4) {
-  rnet <- generateRandomNKNetwork(10, k=nVar, topology = "fixed", functionGeneration = generateBalancedBinvec)
+generateRNet <- function(filename="rnet.txt", nGenes=10, nVar=4) {
+  rnet <- generateRandomNKNetwork(nGenes, k=nVar, topology = "fixed", functionGeneration = generateBalancedBinvec)
   saveNetwork(simplifyNetwork(rnet), filename, generateDNFs = FALSE)
   rnet <<- loadNetwork(filename, symbolic = TRUE) #global assignment operator <<-
 }
@@ -100,7 +100,7 @@ generateRNet <- function(filename="rnet.txt", nVar=4) {
 ###
 # Main program
 ###
-main.program() {
+main.program1 <- function() {
   ergebnisse <- c()
   generateRNet(nVar=4)
   #loadNetwork("rnet.txt")
@@ -109,9 +109,8 @@ main.program() {
   }
   ergebnisse <- data.frame(ergebnisse)
   ggplot(ergebnisse, aes(x=1, y=ergebnisse)) + geom_boxplot(outlier.size = 1.5, outlier.shape = 21) + geom_point()
-  
-  
-  
+
+
   ergebnisse <- data.frame()
   for (inet in 1:3) {
     generateRNet(filename=paste("rnet",toString(inet),".txt",sep=""), nVar=2+inet)
@@ -126,4 +125,23 @@ main.program() {
     geom_boxplot(mapping=aes(x=2, y=X2)) + geom_point(mapping=aes(x=2, y=X2)) +
     geom_boxplot(mapping=aes(x=3, y=X3)) + geom_point(mapping=aes(x=3, y=X2))
   dev.off()
+}
+
+
+main.program2 <- function() {
+  library("ggpubr")
+  source("TruthTable.R")
+  # generateRNet(filename = "rnet-40.txt", nGenes=40, nVar=4)
+  rnet <<- loadNetwork("rnet-40.txt", symbolic = TRUE)
+  rules <- read.csv("rnet-40.txt", stringsAsFactors = FALSE)
+  ergebnisse <- hops <- data.frame()
+  for (i in 1:40) {
+    geneName <- paste("Gene",toString(i),sep="")
+    ergebnisse[i, "ROBUST"] <- evalRobustness(rnet$interactions[[geneName]], vecLength=40, numSamples=1000)
+    ergebnisse[i, "HOPS"] <- evalGray4_TruthTable(rules[["factors"]][which(rules[["targets"]] == geneName)])
+  }
+  ggplot(data = ergebnisse) + geom_boxplot(mapping = aes(x = 1, y = ROBUST)) + geom_point(mapping = aes(x = 1, y = ROBUST))
+  ggsave("Boxplots.png", device = "png")
+  ggplot(data = ergebnisse, mapping = aes(x=HOPS, y=ROBUST)) + geom_point() + geom_smooth(method = "lm", se=FALSE) + stat_regline_equation(label.y = 75, aes(label = ..rr.label..))
+  ggsave("Scatterplot.png", device = "png")
 }
