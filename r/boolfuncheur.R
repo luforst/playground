@@ -1,4 +1,5 @@
 library("BoolNet")
+library("ggplot2")
 net <- loadNetwork("funktionen.txt", symbolic = TRUE)
 perturbieren <- function() {
   for (i in 1:10) {
@@ -60,7 +61,8 @@ evalRobustness <- function(boolfn, vecLength=5, numSamples=100) {
       changed <- changed +1
     }
   }
-  return(c(changed, notchanged))
+#  return(c(changed, notchanged))
+  return(changed)
 }
 
 boolfuncheur.main <- function() {
@@ -80,16 +82,41 @@ generateBalancedBinvec <- function(input, balance=0.5) {
 
 
 generateRNet <- function() {
-  rnet <- generateRandomNKNetwork(10, 5, topology = "fixed", functionGeneration = generateBalancedBinvec)
+  rnet <- generateRandomNKNetwork(10, 4, topology = "fixed", functionGeneration = generateBalancedBinvec)
   saveNetwork(simplifyNetwork(rnet), "rnet.txt", generateDNFs = FALSE)
   rnet <<- loadNetwork("rnet.txt", symbolic = TRUE) #global assignment operator <<-
 }
 
-boolfuncnetheur.main <- function() {
-  if (! exists("rnet")) {
-    generateRNet()
-  }
-  for (i in 1:10) {
-    print(evalRobustness(rnet$interactions[[paste("Gene",toString(i),sep="")]], vecLength=10, numSamples=5000))
-  }
+# boolfuncnetheur.main <- function() {
+#   if (! exists("rnet")) {
+#     generateRNet()
+#   }
+#   for (i in 1:10) {
+#     print(evalRobustness(rnet$interactions[[paste("Gene",toString(i),sep="")]], vecLength=10, numSamples=5000))
+#   }
+# }
+
+
+
+###
+# Main program
+###
+ergebnisse <- c()
+generateRNet()
+for (i in 1:10) {
+  ergebnisse[i] <- evalRobustness(rnet$interactions[[paste("Gene",toString(i),sep="")]], vecLength=10, numSamples=1000)
 }
+ergebnisse <- data.frame(ergebnisse)
+ggplot(ergebnisse, aes(x=1, y=ergebnisse)) + geom_boxplot(outlier.size = 1.5, outlier.shape = 21) + geom_point()
+
+
+
+# ergebnisse <- data.frame()
+# for (inet in 1:3) {
+#   generateRNet()
+#   for (i in 1:10) {
+#     ergebnisse[inet,i] <- evalRobustness(rnet$interactions[[paste("Gene",toString(i),sep="")]], vecLength=10, numSamples=1000)
+#   }
+# }
+# ergebnisse <- data.frame(ergebnisse)
+# ggplot(ergebnisse, aes(x=1, y=ergebnisse[1,])) + geom_boxplot(outlier.size = 1.5, outlier.shape = 21) + geom_point()
