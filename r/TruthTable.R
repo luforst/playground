@@ -26,3 +26,12 @@ balances.main <- function() {
     print(getBalance(func))
   }
 }
+
+gray4_truth_table <- function(x) {
+  vars <- unique(unlist(strsplit(x, "[[:space:]]?[[:punct:]][[:space:]]?")))
+  vars <- vars[vars != ""]
+  perm <- data.frame(matrix(as.integer(unlist(strsplit("0000000100110010011001110101010011001101111111101010101110011000", ""))), 16,4, byrow=TRUE))
+  names(perm) <- vars
+  perm[ , x] <- with(perm, eval(parse(text = x)))
+  return(perm)
+}
