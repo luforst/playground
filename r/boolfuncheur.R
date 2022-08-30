@@ -1,6 +1,6 @@
 library("BoolNet")
 library("ggplot2")
-net <- loadNetwork("funktionen.txt", symbolic = TRUE)
+#net <- loadNetwork("funktionen.txt", symbolic = TRUE)
 perturbieren <- function() {
   for (i in 1:10) {
     r <- perturbTrajectories(net, measure="sensitivity", numSamples=200000, flipBits = 1, gene=paste("F",toString(i),sep=""))
@@ -30,8 +30,6 @@ evalNode <- function(node, binvec) {
   }
 }
 
-tree <- net$interactions
-
 # evalRobustness <- function(func, boolfn, numSamples=100) {
 #   changed <- notchanged <- 0
 #   for (i in 1:numSamples) {
@@ -47,6 +45,7 @@ tree <- net$interactions
 #   return(c(changed, notchanged))
 # }
 
+# tree <- net$interactions
 # example usage: evalRobustness(evalNode, tree$F1)
 
 evalRobustness <- function(boolfn, vecLength=5, numSamples=100) {
@@ -72,7 +71,7 @@ boolfuncheur.main <- function() {
 }
 
 
-# functionGeneration function for generateRandomKNNetwork
+# functionGeneration function for BoolNet::generateRandomKNNetwork
 generateBalancedBinvec <- function(input, balance=0.5) {
   n <- 2**length(input)
   a <- rep(0, n)
@@ -81,10 +80,10 @@ generateBalancedBinvec <- function(input, balance=0.5) {
 }
 
 
-generateRNet <- function() {
-  rnet <- generateRandomNKNetwork(10, 4, topology = "fixed", functionGeneration = generateBalancedBinvec)
-  saveNetwork(simplifyNetwork(rnet), "rnet.txt", generateDNFs = FALSE)
-  rnet <<- loadNetwork("rnet.txt", symbolic = TRUE) #global assignment operator <<-
+generateRNet <- function(filename="rnet.txt", nVar=4) {
+  rnet <- generateRandomNKNetwork(10, k=nVar, topology = "fixed", functionGeneration = generateBalancedBinvec)
+  saveNetwork(simplifyNetwork(rnet), filename, generateDNFs = FALSE)
+  rnet <<- loadNetwork(filename, symbolic = TRUE) #global assignment operator <<-
 }
 
 # boolfuncnetheur.main <- function() {
@@ -101,22 +100,30 @@ generateRNet <- function() {
 ###
 # Main program
 ###
-ergebnisse <- c()
-generateRNet()
-for (i in 1:10) {
-  ergebnisse[i] <- evalRobustness(rnet$interactions[[paste("Gene",toString(i),sep="")]], vecLength=10, numSamples=1000)
+main.program() {
+  ergebnisse <- c()
+  generateRNet(nVar=4)
+  #loadNetwork("rnet.txt")
+  for (i in 1:10) {
+    ergebnisse[i] <- evalRobustness(rnet$interactions[[paste("Gene",toString(i),sep="")]], vecLength=10, numSamples=1000)
+  }
+  ergebnisse <- data.frame(ergebnisse)
+  ggplot(ergebnisse, aes(x=1, y=ergebnisse)) + geom_boxplot(outlier.size = 1.5, outlier.shape = 21) + geom_point()
+  
+  
+  
+  ergebnisse <- data.frame()
+  for (inet in 1:3) {
+    generateRNet(filename=paste("rnet",toString(inet),".txt",sep=""), nVar=2+inet)
+    for (i in 1:10) {
+      ergebnisse[inet,i] <- evalRobustness(rnet$interactions[[paste("Gene",toString(i),sep="")]], vecLength=10, numSamples=1000)
+    }
+  }
+  ergebnisse <- data.frame(t(ergebnisse))
+  #ggplot(ergebnisse) + geom_boxplot(outlier.size = 1.5, outlier.shape = 21) + geom_point()
+  pdf(file="Rplot.pdf")
+  ggplot(data=ergebnisse) + geom_boxplot(mapping=aes(x=1, y=X1)) + geom_point(mapping=aes(x=1, y=X1)) +
+    geom_boxplot(mapping=aes(x=2, y=X2)) + geom_point(mapping=aes(x=2, y=X2)) +
+    geom_boxplot(mapping=aes(x=3, y=X3)) + geom_point(mapping=aes(x=3, y=X2))
+  dev.off()
 }
-ergebnisse <- data.frame(ergebnisse)
-ggplot(ergebnisse, aes(x=1, y=ergebnisse)) + geom_boxplot(outlier.size = 1.5, outlier.shape = 21) + geom_point()
-
-
-
-# ergebnisse <- data.frame()
-# for (inet in 1:3) {
-#   generateRNet()
-#   for (i in 1:10) {
-#     ergebnisse[inet,i] <- evalRobustness(rnet$interactions[[paste("Gene",toString(i),sep="")]], vecLength=10, numSamples=1000)
-#   }
-# }
-# ergebnisse <- data.frame(ergebnisse)
-# ggplot(ergebnisse, aes(x=1, y=ergebnisse[1,])) + geom_boxplot(outlier.size = 1.5, outlier.shape = 21) + geom_point()
