@@ -1,5 +1,7 @@
 library("BoolNet")
 library("ggplot2")
+library("ggpubr")
+source("TruthTable.R")
 #net <- loadNetwork("funktionen.txt", symbolic = TRUE)
 perturbieren <- function() {
   for (i in 1:10) {
@@ -8,14 +10,15 @@ perturbieren <- function() {
   }
 }
 
-randFlip <- function(x) {
-  i <- sample(1:length(x),1)
+randFlip <- function(x, used) {
+  i <- sample(unique(used), 1)
   x[i] <- !x[i]
   return(x)
 }
 
 evalNode <- function(node, binvec) {
   if (node$type == "atom") {
+    glob_IndicesVector <<- c(glob_IndicesVector, node$index) #does not work without global variable from evalRobustness
     if (node$negated) {
       return(!binvec[node$index])
     } else {
@@ -51,15 +54,17 @@ evalNode <- function(node, binvec) {
 evalRobustness <- function(boolfn, vecLength=5, numSamples=100) {
   changed <- notchanged <- 0
   for (i in 1:numSamples) {
+    glob_IndicesVector <<- c() #global variable for the occurring node indices => generate only relevant bitflips
     randvec <- sample(0:1, vecLength, replace=TRUE)
     output <- evalNode(boolfn, randvec)
-    output.flip <- evalNode(boolfn, randFlip(randvec))
+    output.flip <- evalNode(boolfn, randFlip(randvec, glob_IndicesVector))
     if (output == output.flip) {
       notchanged <- notchanged +1
     } else {
       changed <- changed +1
     }
   }
+  rm(glob_IndicesVector) #garbage collection
 #  return(c(changed, notchanged))
   return(changed)
 }
@@ -81,7 +86,7 @@ generateBalancedBinvec <- function(input, balance=0.5) {
 
 
 generateRNet <- function(filename="rnet.txt", nGenes=10, nVar=4) {
-  rnet <- generateRandomNKNetwork(nGenes, k=nVar, topology = "fixed", functionGeneration = generateBalancedBinvec)
+  rnet <- generateRandomNKNetwork(n=nGenes, k=nVar, topology = "fixed", functionGeneration = generateBalancedBinvec)
   saveNetwork(simplifyNetwork(rnet), filename, generateDNFs = FALSE)
   rnet <<- loadNetwork(filename, symbolic = TRUE) #global assignment operator <<-
 }
@@ -128,20 +133,40 @@ main.program1 <- function() {
 }
 
 
-main.program2 <- function() {
-  library("ggpubr")
-  source("TruthTable.R")
-  # generateRNet(filename = "rnet-40.txt", nGenes=40, nVar=4)
-  rnet <<- loadNetwork("rnet-40.txt", symbolic = TRUE)
-  rules <- read.csv("rnet-40.txt", stringsAsFactors = FALSE)
-  ergebnisse <- hops <- data.frame()
-  for (i in 1:40) {
+main.program2 <- function(n) {
+  # generateRNet(filename = "rnet-400.txt", nGenes=n, nVar=4)
+  rnet <<- loadNetwork("rnet-400.txt", symbolic = TRUE)
+  rules <- read.csv("rnet-400.txt", stringsAsFactors = FALSE)
+  ergebnisse <<- data.frame()
+  for (i in 1:n) {
     geneName <- paste("Gene",toString(i),sep="")
-    ergebnisse[i, "ROBUST"] <- evalRobustness(rnet$interactions[[geneName]], vecLength=40, numSamples=1000)
-    ergebnisse[i, "HOPS"] <- evalGray4_TruthTable(rules[["factors"]][which(rules[["targets"]] == geneName)])
+    ergebnisse[i, "CHANGING_FLIPS"] <<- evalRobustness(rnet$interactions[[geneName]], vecLength=n, numSamples=1000)
+    # ergebnisse[i, "HOPS"] <<- evalGray4_TruthTable(rules[["factors"]][which(rules[["targets"]] == geneName)])
+    ergebnisse[i, "HOPS"] <<- evalHops.total(rules[["factors"]][which(rules[["targets"]] == geneName)])
+    ergebnisse[i, "TYPE"] <<- "BalancedBinvec"
   }
-  ggplot(data = ergebnisse) + geom_boxplot(mapping = aes(x = 1, y = ROBUST)) + geom_point(mapping = aes(x = 1, y = ROBUST))
+  ggplot(data = ergebnisse) + geom_boxplot(mapping = aes(x = 1, y = CHANGING_FLIPS)) + geom_point(mapping = aes(x = 1, y = CHANGING_FLIPS))
   ggsave("Boxplots.png", device = "png")
-  ggplot(data = ergebnisse, mapping = aes(x=HOPS, y=ROBUST)) + geom_point() + geom_smooth(method = "lm", se=FALSE) + stat_regline_equation(label.y = 75, aes(label = ..rr.label..))
-  ggsave("Scatterplot.png", device = "png")
+  ggplot(data = ergebnisse, mapping = aes(x=HOPS, y=CHANGING_FLIPS)) + geom_point() + geom_smooth(method = "lm", se=FALSE) + stat_regline_equation(label.y = 75, aes(label = ..rr.label..))
+  ggsave("Scatterplot-totalhops.png", device = "png")
+  # print(cluster::pam(ergebnisse, 2))
+}
+
+main.canal <- function(n) {
+  # canalnet <- generateRandomNKNetwork(n=n, k=4, topology = "fixed", functionGeneration = generateCanalyzing)
+  # saveNetwork(canalnet, "canalnet.txt")
+  canalnet <- loadNetwork("canalnet.txt", symbolic = TRUE)
+  rules <- read.csv("canalnet.txt", stringsAsFactors = FALSE)
+  ergebnisse.canal <<- data.frame()
+  for (i in 1:n) {
+    geneName <- paste("Gene",toString(i),sep="")
+    ergebnisse.canal[i, "CHANGING_FLIPS"] <<- evalRobustness(canalnet$interactions[[geneName]], vecLength=n, numSamples=1000)
+    # ergebnisse.canal[i, "HOPS"] <<- evalGray4_TruthTable(rules[["factors"]][which(rules[["targets"]] == geneName)])
+    ergebnisse.canal[i, "HOPS"] <<- evalHops.total(rules[["factors"]][which(rules[["targets"]] == geneName)])
+    ergebnisse.canal[i, "TYPE"] <<- "Canalyzing"
+  }
+  ggplot(data = ergebnisse.canal) + geom_boxplot(mapping = aes(x = 1, y = CHANGING_FLIPS)) + geom_point(mapping = aes(x = 1, y = CHANGING_FLIPS))
+  ggsave("Canalyzing-Boxplot.png", device = "png")
+  ggplot(data = ergebnisse.canal, mapping = aes(x=HOPS, y=CHANGING_FLIPS)) + geom_point() + geom_smooth(method = "lm", se=FALSE) + stat_regline_equation(label.y = 75, aes(label = ..rr.label..))
+  ggsave("Canalyzing-Scatterplot-totalhops.png", device = "png")
 }

@@ -46,3 +46,44 @@ evalGray4_TruthTable <- function(x) {
   }
   return(count)
 }
+
+
+#balanced Gray codes
+getGray4_TruthTable.balanced <- function(x) {
+  vars <- unique(unlist(strsplit(x, "[[:space:]]?[[:punct:]][[:space:]]?")))
+  vars <- vars[vars != ""]
+  perm <- data.frame(matrix(as.integer(unlist(strsplit("0000100011001101111111101010001001100100010101110011101110010001", ""))), 16,4, byrow=TRUE))
+  names(perm) <- vars
+  perm[ , x] <- with(perm, eval(parse(text = x)))
+  return(perm)
+}
+
+evalGray4_TruthTable.balanced <- function(x) {
+  vec <- getGray4_TruthTable.balanced(x)[,x]
+  count <- 0
+  for (i in 2:length(vec)) {
+    if (vec[i] != vec[i-1]) {
+      count <- count +1
+    }
+  }
+  return(count)
+}
+
+evalHops.total <- function(x) {
+  count <- 0
+  vars <- unique(unlist(strsplit(x, "[[:space:]]?[[:punct:]][[:space:]]?")))
+  vars <- vars[vars != ""]
+  for (n in 0:15) {
+    vec <- data.frame(t(tail(as.numeric(rev(intToBits(n))),4)))
+    names(vec) <- vars
+    result <- with(vec, eval(parse(text = x)))
+    for (i in 1:4) {
+      tmp <- vec
+      tmp[,i] <- ! tmp[,i]
+      if (result != with(tmp, eval(parse(text = x)))) {
+        count <- count +1
+      }
+    }
+  }
+  return(count)
+}
