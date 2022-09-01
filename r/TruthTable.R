@@ -1,3 +1,4 @@
+#These functions take a string containing a Boolean expression as arguments x and y
 truth_table <- function(x) {
   vars <- unique(unlist(strsplit(x, "[^a-zA-Z]+")))
   vars <- vars[vars != ""]
@@ -25,6 +26,15 @@ balances.main <- function() {
   for (func in funcs) {
     print(getBalance(func))
   }
+}
+
+getBalance.Gene <- function(x) {
+  tt <- getGray4_TruthTable(x)
+  balance <- sum(tt[,x]) / nrow(tt)
+  if (balance > 0.5) {
+    balance <- 1-balance
+  }
+  return(balance)
 }
 
 getGray4_TruthTable <- function(x) {

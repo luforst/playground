@@ -2,13 +2,6 @@ library("BoolNet")
 library("ggplot2")
 library("ggpubr")
 source("TruthTable.R")
-#net <- loadNetwork("funktionen.txt", symbolic = TRUE)
-perturbieren <- function() {
-  for (i in 1:10) {
-    r <- perturbTrajectories(net, measure="sensitivity", numSamples=200000, flipBits = 1, gene=paste("F",toString(i),sep=""))
-    print(r$value)
-  }
-}
 
 randFlip <- function(x, used) {
   i <- sample(unique(used), 1)
@@ -32,24 +25,6 @@ evalNode <- function(node, binvec) {
     }
   }
 }
-
-# evalRobustness <- function(func, boolfn, numSamples=100) {
-#   changed <- notchanged <- 0
-#   for (i in 1:numSamples) {
-#     randvec <- sample(0:1, 5, replace=TRUE)
-#     output <- func(boolfn, randvec)
-#     output.flip <- func(boolfn, randFlip(randvec))
-#     if (output == output.flip) {
-#       notchanged <- notchanged +1
-#     } else {
-#       changed <- changed +1
-#     }
-#   }
-#   return(c(changed, notchanged))
-# }
-
-# tree <- net$interactions
-# example usage: evalRobustness(evalNode, tree$F1)
 
 evalRobustness <- function(boolfn, vecLength=5, numSamples=100) {
   changed <- notchanged <- 0
@@ -163,11 +138,12 @@ main.canal <- function(n) {
     ergebnisse.canal[i, "CHANGING_FLIPS"] <<- evalRobustness(canalnet$interactions[[geneName]], vecLength=n, numSamples=1000)
     # ergebnisse.canal[i, "HOPS"] <<- evalGray4_TruthTable(rules[["factors"]][which(rules[["targets"]] == geneName)])
     ergebnisse.canal[i, "HOPS"] <<- evalHops.total(rules[["factors"]][which(rules[["targets"]] == geneName)])
+    ergebnisse.canal[i, "BALANCE"] <<- getBalance.Gene(rules[["factors"]][which(rules[["targets"]] == geneName)])
     ergebnisse.canal[i, "TYPE"] <<- "Canalyzing"
   }
-  ggplot(data = ergebnisse.canal) + geom_boxplot(mapping = aes(x = 1, y = CHANGING_FLIPS)) + geom_point(mapping = aes(x = 1, y = CHANGING_FLIPS))
+  ggplot(data = ergebnisse.canal) + geom_boxplot(mapping = aes(x = 1, y = CHANGING_FLIPS)) + geom_point(mapping = aes(x = 1, y = CHANGING_FLIPS, colour = BALANCE))
   ggsave("Canalyzing-Boxplot.png", device = "png")
-  ggplot(data = ergebnisse.canal, mapping = aes(x=HOPS, y=CHANGING_FLIPS)) + geom_point() + geom_smooth(method = "lm", se=FALSE) + stat_regline_equation(label.y = 75, aes(label = ..rr.label..))
+  ggplot(data = ergebnisse.canal, mapping = aes(x=HOPS, y=CHANGING_FLIPS)) + geom_point(mapping = aes(x=HOPS, y=CHANGING_FLIPS, colour = BALANCE)) + geom_smooth(method = "lm", se=FALSE) + stat_regline_equation(label.y = 75, aes(label = ..rr.label..))
   ggsave("Canalyzing-Scatterplot-totalhops.png", device = "png")
 }
 
@@ -182,10 +158,11 @@ main.nestcanal <- function(n) {
     ergebnisse.nestcanal[i, "CHANGING_FLIPS"] <<- evalRobustness(nestcanalnet$interactions[[geneName]], vecLength=n, numSamples=1000)
     # ergebnisse.nestcanal[i, "HOPS"] <<- evalGray4_TruthTable(rules[["factors"]][which(rules[["targets"]] == geneName)])
     ergebnisse.nestcanal[i, "HOPS"] <<- evalHops.total(rules[["factors"]][which(rules[["targets"]] == geneName)])
+    ergebnisse.nestcanal[i, "BALANCE"] <<- getBalance.Gene(rules[["factors"]][which(rules[["targets"]] == geneName)])
     ergebnisse.nestcanal[i, "TYPE"] <<- "NestedCanalyzing"
   }
   ggplot(data = ergebnisse.nestcanal) + geom_boxplot(mapping = aes(x = 1, y = CHANGING_FLIPS)) + geom_point(mapping = aes(x = 1, y = CHANGING_FLIPS))
   ggsave("NestedCanalyzing-Boxplot.png", device = "png")
-  ggplot(data = ergebnisse.nestcanal, mapping = aes(x=HOPS, y=CHANGING_FLIPS)) + geom_point() + geom_smooth(method = "lm", se=FALSE) + stat_regline_equation(label.y = 75, aes(label = ..rr.label..))
+  ggplot(data = ergebnisse.nestcanal, mapping = aes(x=HOPS, y=CHANGING_FLIPS)) + geom_point(mapping = aes(x=HOPS, y=CHANGING_FLIPS, colour = BALANCE)) + geom_smooth(method = "lm", se=FALSE) + stat_regline_equation(label.y = 75, aes(label = ..rr.label..))
   ggsave("NestedCanalyzing-Scatterplot-totalhops.png", device = "png")
 }
