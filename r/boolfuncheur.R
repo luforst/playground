@@ -170,3 +170,22 @@ main.canal <- function(n) {
   ggplot(data = ergebnisse.canal, mapping = aes(x=HOPS, y=CHANGING_FLIPS)) + geom_point() + geom_smooth(method = "lm", se=FALSE) + stat_regline_equation(label.y = 75, aes(label = ..rr.label..))
   ggsave("Canalyzing-Scatterplot-totalhops.png", device = "png")
 }
+
+main.nestcanal <- function(n) {
+  # nestcanalnet <- generateRandomNKNetwork(n=n, k=4, topology = "fixed", functionGeneration = generateNestedCanalyzing)
+  # saveNetwork(nestcanalnet, "nestcanalnet.txt")
+  nestcanalnet <- loadNetwork("nestcanalnet.txt", symbolic = TRUE)
+  rules <- read.csv("nestcanalnet.txt", stringsAsFactors = FALSE)
+  ergebnisse.nestcanal <<- data.frame()
+  for (i in 1:n) {
+    geneName <- paste("Gene",toString(i),sep="")
+    ergebnisse.nestcanal[i, "CHANGING_FLIPS"] <<- evalRobustness(nestcanalnet$interactions[[geneName]], vecLength=n, numSamples=1000)
+    # ergebnisse.nestcanal[i, "HOPS"] <<- evalGray4_TruthTable(rules[["factors"]][which(rules[["targets"]] == geneName)])
+    ergebnisse.nestcanal[i, "HOPS"] <<- evalHops.total(rules[["factors"]][which(rules[["targets"]] == geneName)])
+    ergebnisse.nestcanal[i, "TYPE"] <<- "NestedCanalyzing"
+  }
+  ggplot(data = ergebnisse.nestcanal) + geom_boxplot(mapping = aes(x = 1, y = CHANGING_FLIPS)) + geom_point(mapping = aes(x = 1, y = CHANGING_FLIPS))
+  ggsave("NestedCanalyzing-Boxplot.png", device = "png")
+  ggplot(data = ergebnisse.nestcanal, mapping = aes(x=HOPS, y=CHANGING_FLIPS)) + geom_point() + geom_smooth(method = "lm", se=FALSE) + stat_regline_equation(label.y = 75, aes(label = ..rr.label..))
+  ggsave("NestedCanalyzing-Scatterplot-totalhops.png", device = "png")
+}
