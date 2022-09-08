@@ -28,7 +28,8 @@ These scripts use the dialog command to show a progress bar
 - myFirstRScript.R: draws a histogram of Gaussian-distributed random numbers
 - boolfuncheur.R: heuristic examination of Boolean functions' noise sensitivity, using the BoolNet package. Berufspraktikum project.
   - funktionen.txt: its BoolNet rules file
-  - TruthTable.txt: examine Boolean functions' truth tables and balancedness
+  - TruthTable.R: examine Boolean functions' truth tables and balancedness
+  - isMonotone.R: check if a Boolean function is monotone
 
 ## Lisp
 - guess-my-number.lisp: guess-my-number, the first example program from Land of Lisp
