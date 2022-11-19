@@ -14,5 +14,31 @@
                         (attic (living-room downstairs ladder))))
 
 (defun describe-path (edge)
-  `(there is a ,(caddr edge) going ,(edge) from here.))
+  `(there is a ,(caddr edge) going ,(cadr edge) from here.))
 
+(defun describe-paths (location edges)
+  (apply #'append (mapcar #'describe-path (cdr (assoc location edges)))))
+
+(defparameter *objects* '(whiskey bucket frog chain))
+
+(defparameter *object-locations* '((whiskey living-room)
+                                   (bucket living-room)
+                                   (chain garden)
+                                   (frog garden)))
+
+(defun objects-at (loc objs obj-locs)
+  (labels ((at-loc-p (obj)
+             (eq (cadr (assoc obj obj-locs)))))
+    (remove-if-not #'at-loc-p objs)))
+
+(defun describe-objects (loc objs obj-locs)
+  (labels ((describe-object (obj)
+             `(you see a ,obj on the floor.)))
+    (apply #'append (mapcar #'describe-object (objects-at loc objs obj-locs)))))
+
+(defparameter *location* 'living-room)
+
+(defun look ()
+  (append (describe-location *location* *nodes*)
+          (describe-paths *location* *edges*)
+          (describe-objects *location* *objects* *object-locations*)))
