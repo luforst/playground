@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
-import os, re
+import os
+import re
 
 files = os.listdir()
 
