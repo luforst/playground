@@ -1,7 +1,7 @@
 # Re-writing the Bioinformatics and Systems Biology exercise R solutions in Julia
 ##### Sheet 1
 # Nr 1a
-plate96 = Matrix{Int}(undef, 8, 12)
+plate96 = Matrix{Integer}(undef, 8, 12)
 
 # 1b
 for i in 1:8
@@ -18,7 +18,7 @@ end
 
 # Nr 2a
 using StatsBase
-function discretize(x::Vector{Float64})
+function discretize(x::Vector{Number})
 	y = Int[]
 	q = nquantile(x, n=4)
 	for i in 1:length(x)
