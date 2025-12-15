@@ -2,6 +2,8 @@
 # Experimente mit sklearn CART trees, um Anzahl benutzter Features auszulesen
 from sklearn.tree import DecisionTreeClassifier
 from sklearn import datasets
+from sklearn import tree
+import matplotlib.pyplot as plt
 import pandas as pd
 
 df = pd.read_csv("Liver RNA Data.csv")
@@ -9,6 +11,10 @@ clf = DecisionTreeClassifier(random_state=42).fit(df.iloc[0:200, 0:-1],
 						  df.iloc[0:200, -1])
 
 tree_depth = clf.tree_.max_depth
+
+
+tree.plot_tree(clf, proportion=True)
+plt.show()
 
 def get_used_features(tree):
     # recursive traversal of the tree

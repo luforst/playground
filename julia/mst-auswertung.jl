@@ -8,3 +8,9 @@ names(MST)
 
 plot(MST, x=:MSTright, y=:MSTleft, Geom.point)
 plot(MST, x=:SQRright, y=:SQRleft, Geom.point)
+plot(MST, x=:MSTright, y=:SQRright, Geom.point)
+plot(MST, x=:MSTright, y=:SQRright, Geom.smooth)
+
+p = plot(MST, x=:MSTright, y=:MSTleft, Geom.point)
+img = SVG("MST_left-right-corr.svg", 12cm, 12cm)
+draw(img, p)
