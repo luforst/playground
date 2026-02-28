@@ -30,9 +30,8 @@ fn størmer(n: i64) -> () {
     let mut i = 1;
     // let mut størmer_numbers = [i64; 10];
     let mut count = 0;
-    let mut t;
     while count < n {
-        t = i * i + 1;
+        let t = i * i + 1;
         if max_prime_factor(t) >= 2 * i {
             println!("{} ", i);
             // (append newfound Størmer number to størmer_numbers array)
@@ -53,5 +52,6 @@ fn main() {
    størmer(4);
    størmer(9);
    størmer(25);
+   størmer(10000);
 }
 
